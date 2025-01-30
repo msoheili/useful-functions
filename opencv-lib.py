@@ -53,3 +53,27 @@ def cropByContour(img: np.ndarray, contour: np.ndarray) -> np.ndarray:
 
     # Crop the image using the bounding box
     return out[y:y+h, x:x+w]
+
+
+def vector_angle(p1, p2):
+    """Calculate the angle of a vector in image coordinates.
+
+    Args:
+        p1 (tuple): (x1, y1) - Start point coordinates.
+        p2 (tuple): (x2, y2) - End point coordinates.
+
+    Returns:
+        float: Angle in degrees (relative to the positive X-axis).
+    """
+    x1, y1 = p1
+    x2, y2 = p2
+
+    # Compute the horizontal and vertical changes
+    dx = x2 - x1  # X increases to the right
+    dy = y1 - y2  # Y decreases going up (correcting for image coordinates)
+
+    # Compute angle in radians and convert to degrees
+    angle_rad = np.arctan2(dy, dx)
+    angle_deg = np.degrees(angle_rad)
+
+    return angle_deg
