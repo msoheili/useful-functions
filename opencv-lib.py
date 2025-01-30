@@ -13,3 +13,13 @@ def pil2cv(img: Image.Image) -> np.ndarray:
         img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGRA)
     
     return img
+
+def cv2pil(img: np.ndarray) -> Image.Image:
+    """Convert an OpenCV (NumPy) array to a PIL Image."""
+    if img.ndim == 3:  # Color image
+        if img.shape[2] == 3:  # BGR to RGB
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        elif img.shape[2] == 4:  # BGRA to RGBA
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+    
+    return Image.fromarray(img)
