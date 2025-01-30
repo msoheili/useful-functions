@@ -23,3 +23,33 @@ def cv2pil(img: np.ndarray) -> Image.Image:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
     
     return Image.fromarray(img)
+
+
+
+def cropByContour(img: np.ndarray, contour: np.ndarray) -> np.ndarray:
+    """Crop an image using a given contour.
+
+    Args:
+        img (np.ndarray): Input image (grayscale or color).
+        contour (np.ndarray): Contour points as a NumPy array.
+
+    Returns:
+        np.ndarray: Cropped image containing the region inside the contour.
+    """
+    # Ensure contour is a NumPy array
+    contour = np.asarray(contour, dtype=np.int32)
+
+    # Create a blank mask with the same shape as the image
+    mask = np.zeros(img.shape[:2], dtype=np.uint8)
+
+    # Draw the filled contour on the mask
+    cv2.drawContours(mask, [contour], 0, 255, thickness=-1)
+
+    # Apply the mask to extract the region of interest
+    out = cv2.bitwise_and(img, img, mask=mask)
+
+    # Get bounding box coordinates of the contour
+    x, y, w, h = cv2.boundingRect(contour)
+
+    # Crop the image using the bounding box
+    return out[y:y+h, x:x+w]
