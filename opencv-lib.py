@@ -26,7 +26,7 @@ def cv2pil(img: np.ndarray) -> Image.Image:
 
 
 
-def cropByContour(img: np.ndarray, contour: np.ndarray) -> np.ndarray:
+def crop_contour(img: np.ndarray, contour: np.ndarray) -> np.ndarray:
     """Crop an image using a given contour.
 
     Args:
@@ -55,7 +55,7 @@ def cropByContour(img: np.ndarray, contour: np.ndarray) -> np.ndarray:
     return out[y:y+h, x:x+w]
 
 
-def vector_angle(p1, p2):
+def get_vector_angle(p1, p2):
     """Calculate the angle of a vector in image coordinates.
 
     Args:
