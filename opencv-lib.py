@@ -26,33 +26,43 @@ def cv2pil(img: np.ndarray) -> Image.Image:
 
 
 
-def crop_contour(img: np.ndarray, contour: np.ndarray) -> np.ndarray:
-    """Crop an image using a given contour.
+def crop_contour(img: np.ndarray, contour: np.ndarray, bg_color=(127, 127, 127)) -> np.ndarray:
+    """Crop an image using a given contour and set a custom background color.
 
     Args:
         img (np.ndarray): Input image (grayscale or color).
         contour (np.ndarray): Contour points as a NumPy array.
+        bg_color (tuple): Background color (B, G, R) for the cropped region.
 
     Returns:
-        np.ndarray: Cropped image containing the region inside the contour.
+        np.ndarray: Cropped image with the specified background color.
     """
     # Ensure contour is a NumPy array
     contour = np.asarray(contour, dtype=np.int32)
 
-    # Create a blank mask with the same shape as the image
+    # Create a blank mask with the same shape as the image (single channel)
     mask = np.zeros(img.shape[:2], dtype=np.uint8)
 
     # Draw the filled contour on the mask
     cv2.drawContours(mask, [contour], 0, 255, thickness=-1)
 
-    # Apply the mask to extract the region of interest
-    out = cv2.bitwise_and(img, img, mask=mask)
-
     # Get bounding box coordinates of the contour
     x, y, w, h = cv2.boundingRect(contour)
 
-    # Crop the image using the bounding box
-    return out[y:y+h, x:x+w]
+    # Crop the mask and image to the bounding box
+    mask_cropped = mask[y:y+h, x:x+w]
+    img_cropped = img[y:y+h, x:x+w]
+
+    # Create a new image filled with the background color
+    if len(img.shape) == 3:  # Color image
+        bg_image = np.full((h, w, 3), bg_color, dtype=np.uint8)
+    else:  # Grayscale image
+        bg_image = np.full((h, w), bg_color[0], dtype=np.uint8)
+
+    # Combine the cropped image and the background
+    result = np.where(mask_cropped[:, :, None] == 255, img_cropped, bg_image)
+
+    return result
 
 
 def get_vector_angle(p1, p2):
