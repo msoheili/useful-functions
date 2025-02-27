@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from PIL import Image
+from PIL import ImageDraw, ImageFont
 
 def pil2cv(img: Image.Image) -> np.ndarray:
     """Convert a PIL Image to an OpenCV (NumPy) array."""
@@ -64,7 +65,30 @@ def crop_contour(img: np.ndarray, contour: np.ndarray, bg_color=(127, 127, 127))
 
     return result
 
+def order_points(pts):
+    """
+    Orders four points in the following order:
+    [top-left, top-right, bottom-right, bottom-left]
+    
+    :param pts: List of four (x, y) tuples.
+    :return: Ordered numpy array of shape (4,2).
+    """
+    pts = np.array(pts, dtype=np.float32)
 
+    # Sort points based on sum (top-left: smallest sum, bottom-right: largest sum)
+    sum_pts = pts.sum(axis=1)
+    top_left = pts[np.argmin(sum_pts)]
+    bottom_right = pts[np.argmax(sum_pts)]
+
+    # Sort points based on difference (top-right: smallest difference, bottom-left: largest difference)
+    diff_pts = np.diff(pts, axis=1)
+    top_right = pts[np.argmin(diff_pts)]
+    bottom_left = pts[np.argmax(diff_pts)]
+
+    return np.array([top_left, top_right, bottom_right, bottom_left], dtype=np.float32)
+
+
+    
 def get_vector_angle(p1, p2):
     """Calculate the angle of a vector in image coordinates.
 
@@ -87,3 +111,25 @@ def get_vector_angle(p1, p2):
     angle_deg = np.degrees(angle_rad)
 
     return angle_deg
+
+
+
+def get_text_size(text, font):
+    """
+    Calculate the width and height of a given text when rendered with a specific font.
+
+    Args:
+        text (str): The text to measure.
+        font (ImageFont.FreeTypeFont): The font used to render the text.
+
+    Returns:
+        tuple: (width, height) of the rendered text in pixels.
+    """
+    # Create a temporary image (1x1) to use for text measurement
+    im = Image.new(mode="L", size=(1, 1))  
+    draw = ImageDraw.Draw(im)
+
+    # Get bounding box of the text and extract width and height
+    _, _, width, height = draw.textbbox((0, 0), text=text, font=font)
+
+    return width, height
