@@ -27,6 +27,28 @@ def cv2pil(img: np.ndarray) -> Image.Image:
 
 
 
+
+def major_axis_angle(contour):
+    """
+    Calculates the major axis angle of an object given its contour.
+    
+    Parameters:
+    contour (array-like): A list or NumPy array representing the contour of an object.
+
+    Returns:
+    float: The angle (in degrees) of the major axis relative to the x-axis.
+    """
+    # Compute image moments from the given contour
+    M = cv2.moments(np.array(contour))
+
+    # Calculate the orientation (major axis angle) using central moments
+    angle = 0.5 * np.arctan2(2 * M["mu11"], M["mu20"] - M["mu02"]) * 180 / np.pi        
+
+    return angle
+
+
+
+
 def crop_contour(img: np.ndarray, contour: np.ndarray, bg_color=(127, 127, 127)) -> np.ndarray:
     """Crop an image using a given contour and set a custom background color.
 
@@ -88,7 +110,7 @@ def order_points(pts):
     return np.array([top_left, top_right, bottom_right, bottom_left], dtype=np.float32)
 
 
-    
+
 def get_vector_angle(p1, p2):
     """Calculate the angle of a vector in image coordinates.
 
